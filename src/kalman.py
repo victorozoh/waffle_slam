@@ -10,7 +10,7 @@ import math
 from numpy.random import randn
 import matplotlib.pyplot as plt
 
-# simulate 2D movement with some noise and measurement
+# simulate 1D movement with some noise and measurement
 # observations returns a tuple of our predicted state and measurements
 def observations(z_var, process_var, count=1, dt=1.):
     x, vel = 0., 1.0
@@ -27,14 +27,13 @@ def observations(z_var, process_var, count=1, dt=1.):
 dt = 1.0 # time step
 R_var = 10
 Q_var = 0.01
-x = np.array([[10.0, 4.5]]).T
+x = np.array([[10.0, 4.5]]).T # state is represented by position and velocity 
 P = np.diag([500, 49]) # state covariance
 A = np.array([[1, dt], # Process dynamics
               [0,  1]])
 H = np.array([[1., 0.]]) # measurement dynamics
 R = np.array([[R_var]]) # measurement noise
-#Q = Q_discrete_white_noise(dim=2, dt=dt, var=Q_var) # process noise
-Q = np.array([[0.01,0.04],[0.04, 0.02]])
+Q = np.random.normal(0, Q_var, (2,2)) # process noise
 
 
 count = 50
