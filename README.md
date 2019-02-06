@@ -59,11 +59,20 @@ Loop Closure Detection
 - Data Association: Linking uncertain measurements with known path/track
 - Registration: Associating collection of data into a known coordinate system
 ### Localisation Algorithms
-- Kalman Filter, Extended Kalmn Filter and Unscented Kalman filter
+- Kalman Filter, Extended Kalmn Filter and Unscented Kalman filter: Family of gaussian filters
 - Histogram filter or Grid Localisation algorithm
-- Markov Localisation
+- Markov Localisation: Utilizes discrete probability distribution as representation of state space and updates the probabilities with each iteration
 - particle filter or Monte Carlo localisation
 ### Kalman Filter
 - Assumes linear motion and measurement models
 - Assumes a unimodal gaussian
 - Not suited to localisation problem of a wheeled robot. Extended Kalman filter is more appropriate for wheeled robots.
+### EKF
+- Does not asssume linear measurement or motion models
+- Linearization of non-linear function is necessary
+
+### Overall Structure
+- Send control commands via keyboard/jotstick. Or develop exploration algorithm
+- Subscribe to IMU and Odometry data
+- Publish filtered pose on a new topic
+- view trajectory on Rviz
