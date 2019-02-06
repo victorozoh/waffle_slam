@@ -45,3 +45,18 @@ Loop Closure Detection
 - gmapping
 - move_base
 - move_group
+
+## Notes
+### Localisation Problems
+- Local Localisation: Initial pose is known and robot has to track it's position and orientation
+- Global Localisation: Unknown initial pose
+- Kidnapped Robot: Robot in operation is taken to an arbitrary position and has to localize.
+### Some State Estimation problems
+- Sensor Fusion: Combining data and information from different sensor measurements to get a more accurate state estimate
+- Loop Closure Detection: Correctly asserting that a robot has visited a location previously.
+- Data Association: Linking uncertain measurements with known path/track
+- Registration: Associating collection of data into a known coordinate system
+### Kalman Filter
+- Assumes linear motion and measurement models
+- Assumes a unimodal gaussian
+- Not suited to localisation problem of a wheeled robot. Extended Kalman filter is more appropriate for wheeled robots.

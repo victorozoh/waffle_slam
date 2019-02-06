@@ -18,11 +18,11 @@ def observations(z_var, process_var, count=1, dt=1.):
     p_std = math.sqrt(process_var)
     xs, zs = [], []
     for _ in range(count):
-        v = vel + (randn() * p_std)
-        x += v*dt        
+        v = vel + (randn() * p_std) # dynamics with some noise
+        x += v*dt     
         xs.append(x)
-        zs.append(x + randn() * z_std)        
-    return np.array(xs), np.array(zs)
+        zs.append(x + randn() * z_std) #measurement process   
+    return np.array(xs), np.array(zs) # return track and measurements
 
 dt = 1.0 # time step
 R_var = 10
