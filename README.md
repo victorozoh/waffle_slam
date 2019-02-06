@@ -45,10 +45,12 @@ Loop Closure Detection
 - gmapping
 - move_base
 - move_group
+- AMCL
 
 ## Notes
+- SLAM is a key step for proper Navigation and Planning in mobile autonomous systems
 ### Localisation Problems
-- Local Localisation: Initial pose is known and robot has to track it's position and orientation
+- Tracking: Initial pose is known and robot has to track it's position and orientation
 - Global Localisation: Unknown initial pose
 - Kidnapped Robot: Robot in operation is taken to an arbitrary position and has to localize.
 ### Some State Estimation problems
@@ -56,6 +58,11 @@ Loop Closure Detection
 - Loop Closure Detection: Correctly asserting that a robot has visited a location previously.
 - Data Association: Linking uncertain measurements with known path/track
 - Registration: Associating collection of data into a known coordinate system
+### Localisation Algorithms
+- Kalman Filter, Extended Kalmn Filter and Unscented Kalman filter
+- Histogram filter or Grid Localisation algorithm
+- Markov Localisation
+- particle filter or Monte Carlo localisation
 ### Kalman Filter
 - Assumes linear motion and measurement models
 - Assumes a unimodal gaussian
