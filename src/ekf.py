@@ -13,8 +13,8 @@ P = np.random.normal(0, 10, (3,3)) # Covariance matrix, initial uncertainty
 f = np.zeros((3,2)) # velocity transition matrix
 F = np.zeros((3,3)) # Jacobian matrix i.e F = Jacobian(f)
 H = np.zeros((3,3)) # Measurement Function
-R = np.random.normal(0, 0.4, (3,3)) # Measurement Noise/Uncertainty.
-Q = np.random.normal(0, 0.7, (3,3)) # Motion Noise
+R = np.zeros((3,3)) ; np.fill_diagonal(R, 3.0)  # Measurement Noise/Uncertainty.
+Q = np.zeros((3,3)) ; np.fill_diagonal(Q, 3.0) # Motion Noise
 
 
 def ExtendedKalmanFilter(vx, vy, th, angular_vel, ast_time):
