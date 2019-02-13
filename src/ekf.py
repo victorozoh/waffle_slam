@@ -2,24 +2,53 @@
 
 import rospy
 import numpy as np
+import math
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Imu
 
-# define extended Kalman filter function
-def extendedKalman():
+x = np.matrix([0, 0, 0]).transpose() # state vector
+P = np.matrix(np.eye(3))*100 # Covariance matrix, initial uncertainty
+f = np.zeros((3,2)) # velocity transition matrix
+F = np.zeros((3,3)) # Jacobian matrix
+H = np.zeros((3,3)) # Measurement Function
+R = np.random.normal(0, 0.4, (3,3)) # Measurement Noise/Uncertainty.
+Q = np.random.normal(0, 0.7, (3,3)) # Motion Noise
+
+
+def ExtendedKalmanFilter(vx, vy, th, angular_vel, ast_time):
+    dt = rospy.Time.now().to_sec() - t0 # delta time
+
+    # prediction/motion, velocity model
+    f = np.array([[dt * math.cos(th), 0],[dt * math.sin(th), 0],[0, th]])
+    linear_vel = math.sqrt((vx)**2 + (vy)**2)
+    vel = np.array([linear_vel, angular_vel ])
+    # x' from motion/ prediction
+    x = x + np.dot(f, vel)
+    # use F = Jacobian(f) to update covariance
+    F = np.array([[1, 0, -1*vel*dt*math.sin(th)],[0, 1, vel*dt*math.cos(th)],[0, 0, 1]])
+    P = np.dot(F,P).dot(F.T) + Q
+
+    # update
+    
 
 
 
-def main():
-    rospy.init_node('talker', anonymous=True)
-    pub = rospy.Publisher('filter', String, queue_size=10)
-    rate = rospy.Rate(10) # 10hz
-    # call extended kalman filter function
+    return x, P
+def callback():
 
-    while not rospy.is_shutdown():
-        rate.sleep()
-
+    filtered = ekf.update()
+    pub.publish(filtered)
 
 if __name__ == "__main__":
     try:
-        main()
+        rospy.init_node('ekfnode', anonymous=True)
+        t0 = rospy.Time.now().to_sec()
+        pub = rospy.Publisher('filtered_odom', Odometry, queue_size=10)
+
+        sub = rospy.Subscriber('odom',Odometry,callback)
+        rate = rospy.Rate(10) # 10hz
+
+        while not rospy.is_shutdown():
+            rate.sleep()
     except rospy.ROSInterruptexception:
         pass
