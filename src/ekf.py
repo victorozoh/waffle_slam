@@ -7,8 +7,8 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 
 # initial values
-x = np.array([0, 0, 0]).transpose() # state vector
-z = np.array([0, 0, 0]).transpose() # measurement vector
+x = np.array([0, 0, 0]) # state vector
+z = np.array([0, 0, 0]) # measurement vector
 P = np.random.normal(0, 10, (3,3)) # Covariance matrix, initial uncertainty
 f = np.zeros((3,2)) # velocity transition matrix
 F = np.zeros((3,3)) # Jacobian matrix i.e F = Jacobian(f)
