@@ -12,13 +12,14 @@ z = np.array([0, 0, 0]) # measurement vector
 P = np.random.normal(0, 10, (3,3)) # Covariance matrix, initial uncertainty
 f = np.zeros((3,2)) # velocity transition matrix
 F = np.zeros((3,3)) # Jacobian matrix i.e F = Jacobian(f)
-H = np.zeros((3,3)) # Measurement Function
+h = np.zeros((3,2)) # Measurement Function
+H = np.zeros((3,3)) # Jacobian matrix i.e H = Jacobian(h)
 R = np.zeros((3,3)) ; np.fill_diagonal(R, 3.0)  # Measurement Noise/Uncertainty.
 Q = np.zeros((3,3)) ; np.fill_diagonal(Q, 3.0) # Motion Noise
 
 
-def ExtendedKalmanFilter(vx, vy, th, angular_vel, ast_time):
-    dt = rospy.Time.now().to_sec() - t0 # delta time
+def ExtendedKalmanFilter(vx, vy, th, angular_vel, last_time):
+    dt = rospy.Time.now().to_sec() - last_time # delta time
 
     # prediction/motion, velocity model
     f = np.array([[dt * math.cos(th), 0],[dt * math.sin(th), 0],[0, th]])
@@ -36,21 +37,21 @@ def ExtendedKalmanFilter(vx, vy, th, angular_vel, ast_time):
 
 
     return x, P
-def callback():
+def callback(msg):
+    # get current measurements
+    odom = Odometry()
 
-    filtered = ekf.update()
+    # call extended kalman filter function
     pub.publish(filtered)
 
 if __name__ == "__main__":
     try:
         rospy.init_node('ekfnode', anonymous=True)
         t0 = rospy.Time.now().to_sec()
+
         pub = rospy.Publisher('filtered_odom', Odometry, queue_size=10)
-
         sub = rospy.Subscriber('odom',Odometry,callback)
-        rate = rospy.Rate(10) # 10hz
-
-        while not rospy.is_shutdown():
-            rate.sleep()
+        
+        rospy.spin()
     except rospy.ROSInterruptexception:
         pass
