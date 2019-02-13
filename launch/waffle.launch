@@ -6,6 +6,19 @@
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
 
+  <!--Robot Pose EKF Package -->
+  <!-- The path_ekf_plotter node -->
+  <node name="path_ekf_plotter" type="path_ekf_plotter.py" pkg="odom_to_trajectory">
+  </node>
+
+  <!-- The path_odom_plotter node -->
+  <node name="path_odom_plotter" type="path_odom_plotter.py" pkg="odom_to_trajectory">
+  </node>
+
+  <!--RobotPose EKF package-->
+ <node pkg="waffle_pick_place" type="ekf" name="ekfnode">
+ </node>
+
   <!-- Load robot model into robot_description parameter -->
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
@@ -19,12 +32,10 @@
     <arg name="debug" value="false"/> -->
   </include>
 
-  <!-- <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+  <!-- Needed for rviz -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="30.0" />
-  </node> -->
-
-  <!--RVIZ-->
-  <!-- <node pkg="rviz" type="rviz" name="rviz"/> -->
+  </node>
 
   <!-- Start up robot model in gazebo world -->
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
@@ -33,5 +44,7 @@
   <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen">
   </node>
 
+  <!--RVIZ-->
+  <node pkg="rviz" type="rviz" name="rviz"/>
 
 </launch>

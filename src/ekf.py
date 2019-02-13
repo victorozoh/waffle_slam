@@ -75,12 +75,14 @@ def callback(msg):
     # publish filtered message
     pub.publish(filtered_msg)
 
+
+
 if __name__ == "__main__":
     try:
         rospy.init_node('ekfnode', anonymous=True)
         last_time = rospy.Time.now().to_sec()
 
-        pub = rospy.Publisher('filtered_odom', Odometry, queue_size=10)
+        pub = rospy.Publisher('odom_combined', Odometry, queue_size=10)
         sub = rospy.Subscriber('odom',Odometry,callback)
 
         rospy.spin()
