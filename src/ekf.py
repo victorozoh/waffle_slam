@@ -6,10 +6,12 @@ import math
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 
-x = np.matrix([0, 0, 0]).transpose() # state vector
-P = np.matrix(np.eye(3))*100 # Covariance matrix, initial uncertainty
+# initial values
+x = np.array([0, 0, 0]).transpose() # state vector
+z = np.array([0, 0, 0]).transpose() # measurement vector
+P = np.random.normal(0, 10, (3,3)) # Covariance matrix, initial uncertainty
 f = np.zeros((3,2)) # velocity transition matrix
-F = np.zeros((3,3)) # Jacobian matrix
+F = np.zeros((3,3)) # Jacobian matrix i.e F = Jacobian(f)
 H = np.zeros((3,3)) # Measurement Function
 R = np.random.normal(0, 0.4, (3,3)) # Measurement Noise/Uncertainty.
 Q = np.random.normal(0, 0.7, (3,3)) # Motion Noise
@@ -29,7 +31,7 @@ def ExtendedKalmanFilter(vx, vy, th, angular_vel, ast_time):
     P = np.dot(F,P).dot(F.T) + Q
 
     # update
-    
+
 
 
 
