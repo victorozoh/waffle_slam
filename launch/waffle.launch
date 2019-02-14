@@ -16,7 +16,7 @@
   </node>
 
   <!--RobotPose EKF package-->
- <node pkg="waffle_pick_place" type="ekf" name="ekfnode">
+ <node pkg="waffle_pick_place" type="ekf.py" name="ekfnode">
  </node>
 
   <!-- Load robot model into robot_description parameter -->
@@ -45,6 +45,6 @@
   </node>
 
   <!--RVIZ-->
-  <node pkg="rviz" type="rviz" name="rviz"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/EKF.rviz"/>
 
 </launch>
