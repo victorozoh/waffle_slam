@@ -9,6 +9,7 @@
   <!--Robot Pose EKF Package -->
   <!-- The path_ekf_plotter node -->
   <node name="path_ekf_plotter" type="path_ekf_plotter.py" pkg="odom_to_trajectory">
+    <remap from="/robot_pose_ekf/odom_combined" to="odom_combined" />
   </node>
 
   <!-- The path_odom_plotter node -->

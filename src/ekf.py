@@ -6,6 +6,7 @@ import math
 import tf
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
+from geometry_msgs.msg import Quaternion, PoseWithCovarianceStamped
 
 
 class ExtendedKalmanFilter(object):
@@ -69,7 +70,6 @@ def callback(msg):
     th = euler[2]
     z = np.array([x_pos, y_pos, th]) #actual measurement
     # call extended kalman filter function
-    filtered_msg = msg
     dt = rospy.Time.now().to_sec() - last_time # delta time
     new_state, new_cov = ekf.estimate(z, vx, vy, angular_vel, dt)
 
@@ -85,12 +85,17 @@ def callback(msg):
     # Yaw and Yaw
     p_cov[5,5] = new_cov[2,2]
 
+    euler = list(euler)
+    euler[2] = new_state[2]
+
+    filtered_msg = PoseWithCovarianceStamped()
+    filtered_msg.header.stamp = rospy.Time.now()
+    filtered_msg.header.frame_id = "odom_combined"
     filtered_msg.pose.covariance = tuple(p_cov.ravel().tolist())
     filtered_msg.pose.pose.position.x = new_state[0]
     filtered_msg.pose.pose.position.y = new_state[1]
-    euler = list(euler)
-    euler[2] = new_state[2]
-    filtered_msg.pose.pose.orientation = tf.transformations.quaternion_from_euler(euler[0], euler[1], euler[2])
+    filtered_msg.pose.pose.position.z = 0.0
+    filtered_msg.pose.pose.orientation = Quaternion(*(tf.transformations.quaternion_from_euler(euler[0], euler[1], euler[2])))
     # publish filtered message
     pub.publish(filtered_msg)
 
@@ -101,8 +106,9 @@ if __name__ == "__main__":
         rospy.init_node('ekfnode')
         last_time = rospy.Time.now().to_sec()
 
+        tf_br = tf.TransformBroadcaster()
         ekf = ExtendedKalmanFilter()
-        pub = rospy.Publisher('odom_combined', Odometry, queue_size=10)
+        pub = rospy.Publisher('odom_combined', PoseWithCovarianceStamped, queue_size=10)
         sub = rospy.Subscriber('odom',Odometry,callback)
 
         rospy.spin()
