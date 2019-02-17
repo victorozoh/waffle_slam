@@ -6,7 +6,7 @@ import math
 import tf
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
-from geometry_msgs.msg import Quaternion, PoseWithCovarianceStamped
+from geometry_msgs.msg import Point, Quaternion, PoseWithCovarianceStamped
 
 last_time = 0.0
 
@@ -96,24 +96,23 @@ def callback(msg):
     euler = list(euler)
     euler[2] = new_state[2]
 
-    filtered_msg = PoseWithCovarianceStamped()
+    filtered_msg = Odometry()
     filtered_msg.header.stamp = rospy.Time.now()
     filtered_msg.header.frame_id = "odom"
-    filtered_msg.pose.covariance = tuple(p_cov.ravel().tolist())
-    filtered_msg.pose.pose.position.x = new_state[0]
-    filtered_msg.pose.pose.position.y = new_state[1]
-    filtered_msg.pose.pose.position.z = 0.0
+    filtered_msg.child_frame_id = 'base_footprint'
+    filtered_msg.pose.pose.position = Point(new_state[0], new_state[1], 0.0)
     filtered_msg.pose.pose.orientation = Quaternion(*(tf.transformations.quaternion_from_euler(euler[0], euler[1], euler[2])))
-    #new_ori = filtered_msg.pose.pose.orientation
+    filtered_msg.pose.covariance = tuple(p_cov.ravel().tolist())
+
     new_ori =   (filtered_msg.pose.pose.orientation.x,
                     filtered_msg.pose.pose.orientation.y,
                     filtered_msg.pose.pose.orientation.z,
                     filtered_msg.pose.pose.orientation.w)
+
     # publish filtered message
     pub.publish(filtered_msg)
     # Also publish tf
-    tf_pub.sendTransform((new_state[0], new_state[1], 0.0), new_ori,
-    filtered_msg.header.stamp, odom_frame, base_frame)
+    #tf_pub.sendTransform((new_state[0], new_state[1], 0.0), new_ori, filtered_msg.header.stamp, base_frame, odom_frame)
 
 
 if __name__ == "__main__":
@@ -124,7 +123,7 @@ if __name__ == "__main__":
         tf_pub = tf.TransformBroadcaster()
 
         ekf = ExtendedKalmanFilter()
-        pub = rospy.Publisher('odom_combined', PoseWithCovarianceStamped, queue_size=10)
+        pub = rospy.Publisher('odom_combined', Odometry, queue_size=10)
 
         global last_time
         last_time = rospy.Time.now().to_sec()

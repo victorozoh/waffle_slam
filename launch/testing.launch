@@ -8,8 +8,7 @@
 
   <!--Robot Pose EKF Package -->
   <!-- The path_ekf_plotter node -->
-  <node name="path_ekf_plotter" type="path_ekf_plotter.py" pkg="odom_to_trajectory">
-    <remap from="/robot_pose_ekf/odom_combined" to="odom_combined" />
+  <node name="path_ekf_plotter" type="plot_ekf_path.py" pkg="waffle_pick_place">
   </node>
 
   <!-- The path_odom_plotter node -->
@@ -17,7 +16,7 @@
   </node>
 
   <!--RobotPose EKF package-->
- <node pkg="waffle_pick_place" type="ekf.py" name="ekfnode">
+ <node pkg="waffle_pick_place" type="testekf.py" name="ekfnode">
    <param name="output_frame" value="odom_combined"/>
    <param name="base_footprint_frame" value="base_footprint"/>
  </node>
