@@ -58,8 +58,6 @@ def callback(data):
         return path
 
 
-
-
 if __name__ == '__main__':
         #Variable initialization
         global xAnt

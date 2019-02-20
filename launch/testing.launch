@@ -6,7 +6,9 @@
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
 
-  <!--Robot Pose EKF Package -->
+  <!-- turtlebot3_diagnostics -->
+  <!-- <include file="$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch" /> -->
+
   <!-- The path_ekf_plotter node -->
   <node name="path_ekf_plotter" type="plot_ekf_path.py" pkg="waffle_pick_place">
   </node>
@@ -15,8 +17,8 @@
   <node name="path_odom_plotter" type="path_odom_plotter.py" pkg="odom_to_trajectory">
   </node>
 
-  <!--RobotPose EKF package-->
- <node pkg="waffle_pick_place" type="testekf.py" name="ekfnode">
+  <!--EKF node-->
+ <node pkg="waffle_pick_place" type="testekf.py" name="ekfnode" output="screen">
    <param name="output_frame" value="odom_combined"/>
    <param name="base_footprint_frame" value="base_footprint"/>
  </node>

@@ -14,29 +14,31 @@ class ExtendedKalmanFilter(object):
 
     def __init__(self):
         # initial values
+        self.noise_value = np.array([0.5]*3)
         self.x = np.array([0, 0, 0]) # state vector
-        # self.z = np.array([0, 0, 0]) # measurement vector
-        self.P = np.zeros((3,3)) ; np.fill_diagonal(self.P, 1.0) # Covariance matrix, initial uncertainty
+        #self.z = np.array([0, 0, 0]) # measurement vector-holds time t-1 measurement
+        self.P = np.diag(self.noise_value) # Covariance matrix, initial uncertainty
         self.f = np.zeros((3,2)) # velocity transition matrix
         self.F = np.zeros((3,3)) # Jacobian matrix i.e F = Jacobian(f)
-        self.h = np.zeros((3,2)) # Measurement Function
-        self.H = np.zeros((3,3)) # Jacobian matrix i.e H = Jacobian(h)
-        self.R = np.zeros((3,3)) ; np.fill_diagonal(self.R, 1.0)  # Measurement Noise/Uncertainty.
-        self.Q = np.zeros((3,3)) ; np.fill_diagonal(self.Q, 1.0) # Process/Motion Noise
+        self.h = np.eye(3,3) # Measurement Function
+        self.H = np.eye(3,3) # Jacobian matrix i.e H = Jacobian(h)
+        self.R = np.diag(self.noise_value)  # Measurement Noise/Uncertainty.
+        self.Q = np.diag(self.noise_value) # Process/Motion Noise
         self.velocity = None
+        self.odom_vel = [0.0, 0.0]
 
     def twistCallback(self, msg):
         self.velocity = msg
 
+    def imuCallback(self, msg):
+        
 
     def odomCallback(self, msg):
         # get current measurements
         x_pos = msg.pose.pose.position.x
         y_pos = msg.pose.pose.position.x
+        odom_vel = (msg.twist.twist.linear.x, msg.twist.twist.linear.y)
 
-        # vx = msg.twist.twist.linear.x
-        # vy = msg.twist.twist.linear.y
-        # angular_vel = msg.twist.twist.angular.z
         if self.velocity is not None:
             vx = self.velocity.linear.x
             vy = self.velocity.linear.y
@@ -48,14 +50,14 @@ class ExtendedKalmanFilter(object):
                             msg.pose.pose.orientation.w)
             euler = tf.transformations.euler_from_quaternion(quaternion)
             theta = euler[2]
-            z = np.array([x_pos, y_pos, theta]) #actual measurement
+            current_z = np.array([x_pos, y_pos, theta]) #actual measurement
 
             dt = rospy.Time.now().to_sec() - last_time # delta time
             global last_time
             last_time = rospy.Time.now().to_sec()
 
             # call extended kalman filter function
-            new_state, new_cov = self.estimate(z, vx, vy, angular_vel, dt)
+            new_state, new_cov = self.estimate(current_z, vx, vy, angular_vel, odom_vel, dt)
 
             # covariance update in odometry message form
             p_cov = np.array([0.0]*36).reshape(6,6)
@@ -81,11 +83,7 @@ class ExtendedKalmanFilter(object):
             # filtered_msg.twist.twist.linear = Vector3(vx, vy, 0.0)
             # filtered_msg.twist.twist.angular = Vector3(0.0, 0.0, angular_vel)
             filtered_msg.pose.covariance = tuple(p_cov.ravel().tolist())
-
-            new_ori =  (filtered_msg.pose.pose.orientation.x,
-                        filtered_msg.pose.pose.orientation.y,
-                        filtered_msg.pose.pose.orientation.z,
-                        filtered_msg.pose.pose.orientation.w)
+            #
 
             # publish filtered message
             pub.publish(filtered_msg)
@@ -94,32 +92,47 @@ class ExtendedKalmanFilter(object):
         else:
             pass
 
-    def estimate(self, z, vx, vy, angular_vel, dt):
+    def estimate(self, current_z, vx, vy, angular_vel, odom_vel, dt):
         # prediction/motion, velocity model
-        theta = z[2] # angle
+        theta = current_z[2] # angle
         self.f = np.array([[dt * math.cos(theta), 0],
                         [dt * math.sin(theta), 0], [0, dt]])
         linear_vel = math.sqrt((vx)**2 + (vy)**2)
         vel = np.array([linear_vel, angular_vel])
         # x' from motion/ prediction
         old_x = self.x
-        old_theta = self.x[2]
         x_prime = self.x + np.dot(self.f, vel)
         # use F = Jacobian(f) to update covariance
-        self.F = np.array([[1, 0, -1* linear_vel * dt* math.sin(theta)],
-                            [0, 1, linear_vel * dt * math.cos(theta)], [0, 0, 1]])
-        P_prime = np.dot(self.F,self.P).dot(self.F.T) + self.Q
+        self.F = np.array([[1, 0, -1 * linear_vel * dt* math.sin(theta)],
+                            [0, 1, linear_vel * dt * math.cos(theta)],
+                            [0, 0, 1]])
+        #self.F = np.eye(3,3)
+        P_prime = np.dot(self.F, self.P).dot(self.F.T) + self.Q
 
-        # measurement update
+        # measurement update odometry model
         # get h(x) and H(x) measurement models
+        #self.h = np.eye(3,3)
+        predicted_z = np.dot(self.h, x_prime)
 
+        #self.H = np.eye(3,3)
         # compute innovation
-
+        innovation = current_z - predicted_z
+        innovation_covariance = np.dot(self.H, P_prime).dot(self.H.T) + self.R
         # compute kalman gain
-
+        kalman_gain = np.dot(P_prime, self.H.T).dot(np.linalg.inv(innovation_covariance))
         # update state
-        self.x = x_prime #+ np.dot(kalman_gain, innovation)
-        self.P = P_prime #- np.dot(kalman_gain,self.H).dot(P_prime)
+        #self.z = current_z
+        #innovation = np.zeros(3)
+        #rospy.loginfo('The error is %s', np.dot(kalman_gain, innovation))
+        self.x = x_prime + np.dot(kalman_gain, innovation)
+        self.P = P_prime - np.dot(kalman_gain,self.H).dot(P_prime)
+
+        # perform second fusion with Imu data
+
+
+
+        self.odom_vel = list(odom_vel)
+        # return updated state
         return self.x, self.P
 
 
@@ -129,9 +142,9 @@ class ExtendedKalmanFilter(object):
 if __name__ == "__main__":
     try:
         rospy.init_node('ekfnode')
-        odom_frame = rospy.get_param("~output_frame",'odom')
-        base_frame = rospy.get_param("~base_footprint_frame",'base_footprint')
-        tf_pub = tf.TransformBroadcaster()
+        # odom_frame = rospy.get_param("~output_frame",'odom')
+        # base_frame = rospy.get_param("~base_footprint_frame",'base_footprint')
+        # tf_pub = tf.TransformBroadcaster()
 
         ekf = ExtendedKalmanFilter()
         pub = rospy.Publisher('odom_combined', Odometry, queue_size=10)
@@ -139,6 +152,7 @@ if __name__ == "__main__":
         global last_time
         last_time = rospy.Time.now().to_sec()
         twist_sub = rospy.Subscriber('cmd_vel', Twist, ekf.twistCallback)
+        imu_sub = rospy.Subscriber('Imu', Imu, ekf.imuCallback)
         odom_sub = rospy.Subscriber('odom', Odometry, ekf.odomCallback)
 
         rospy.spin()
