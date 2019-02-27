@@ -1,0 +1,37 @@
+<launch>
+  <!-- specify turtlebot model via environment variable -->
+  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <!-- specify parameters for start location of robot in simulation -->
+  <arg name="x_pos" default="-2.0"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
+  <arg name="world" default="$(find waffle_pick_place)/worlds/waffle.world"/>
+  <!-- turtlebot3_diagnostics -->
+  <!-- <include file="$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch" /> -->
+
+  <!-- Load robot model into robot_description parameter -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+
+  <!-- load world model for gazebo -->
+  <include file="$(find waffle_pick_place)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find waffle_pick_place)/worlds/waffle.world"/>
+  </include>
+
+  <!-- Needed for rviz -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
+
+  <!-- Start up robot model in gazebo world -->
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description">
+
+  </node>
+
+  <!--Turtlebot3 Teleop has inbuilt velocity smoother-->
+  <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen">
+  </node>
+
+  <!--RVIZ-->
+  <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/EKF.rviz"/> -->
+
+</launch>

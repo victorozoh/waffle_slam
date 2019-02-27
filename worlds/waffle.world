@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="default">
+    <!-- light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- objects -->
+
+    <population name="box_population1">
+      <model name="box1">
+        <include>
+          <static>true</static>
+          <uri>model://cardboard_box</uri>
+        </include>
+      </model>
+      <pose>0 0 0 0 0 0</pose>
+      <box>
+        <size>3 3 0.05</size>
+      </box>
+      <model_count>4</model_count>
+      <distribution>
+        <type>grid</type>
+        <rows>2</rows>
+        <cols>2</cols>
+        <step>1.0 1.5 0</step>
+      </distribution>
+    </population>
+
+
+
+  </world>
+</sdf>
