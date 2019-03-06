@@ -44,7 +44,7 @@
     </model>
 
     <!-- marker 2 -->
-    <model name="MarkerData_2">
+    <!-- <model name="MarkerData_2">
       <pose>1 1 0  0 0 0</pose>
       <static>true</static>
       <link name="link">
@@ -56,10 +56,10 @@
           </geometry>
         </visual>
       </link>
-    </model>
+    </model> -->
 
     <!-- marker 3 -->
-    <model name="MarkerData_3">
+    <!-- <model name="MarkerData_3">
       <pose>2 -2 0  0 0 0</pose>
       <static>true</static>
       <link name="link">
@@ -71,10 +71,10 @@
           </geometry>
         </visual>
       </link>
-    </model>
+    </model> -->
 
     <!-- marker 4 -->
-    <model name="MarkerData_4">
+    <!-- <model name="MarkerData_4">
       <pose>2 0.5 0  0 0 0</pose>
       <static>true</static>
       <link name="link">
@@ -86,7 +86,7 @@
           </geometry>
         </visual>
       </link>
-    </model>
+    </model> -->
 
 
   </world>

@@ -2,7 +2,7 @@
   <!-- specify turtlebot model via environment variable -->
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
   <!-- specify parameters for start location of robot in simulation -->
-  <arg name="x_pos" default="-2.0"/>
+  <arg name="x_pos" default="-1.0"/>
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
   <arg name="world" default="$(find waffle_pick_place)/worlds/waffle.world"/>
@@ -28,21 +28,24 @@
   </include>
 
   <!-- Needed for rviz -->
-  <!-- <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="30.0" />
-  </node> -->
+  </node>
 
   <!-- Start up robot model in gazebo world -->
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description">
 
   </node>
 
+  <!-- TF transform -->
+  <node pkg="tf" name="world_frames_connection" type="static_transform_publisher" args="1 -3 0 0 0 -1.57 /base_footprint /camera_rgb_optical_frame 100"/>
+
   <!-- AR track -->
-  <node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen">
+  <node pkg="ar_track_alvar" name="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen">
     <param name="marker_size" type="double" value="$(arg marker_size)" />
     <param name="max_new_marker_error" type="double" value="$(arg max_new_marker_error)" />
     <param name="max_track_error" type="double" value="$(arg max_track_error)" />
-    <param name="output_frame" type="double" value="$(arg output_frame)" />
+    <param name="output_frame" type="string" value="$(arg output_frame)" />
 
     <remap from="camera_image" to="$(arg cam_image_topic)" />
     <remap from="camera_info" to="$(arg cam_info_topic)" />
@@ -54,6 +57,6 @@
   </node> -->
 
   <!--RVIZ-->
-  <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/EKF.rviz"/> -->
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/Tags.rviz"/>
 
 </launch>

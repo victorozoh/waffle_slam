@@ -9,20 +9,6 @@
   <!-- turtlebot3_diagnostics -->
   <!-- <include file="$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch" /> -->
 
-  <!-- The path_ekf_plotter node -->
-  <node name="path_ekf_plotter" type="plot_ekf_path.py" pkg="waffle_pick_place">
-  </node>
-
-  <!-- The path_odom_plotter node -->
-  <node name="path_odom_plotter" type="path_odom_plotter.py" pkg="odom_to_trajectory">
-  </node>
-
-  <!--EKF node-->
- <node pkg="waffle_pick_place" type="testekf.py" name="ekfnode" output="screen">
-   <param name="output_frame" value="odom_combined"/>
-   <param name="base_footprint_frame" value="base_footprint"/>
- </node>
-
   <!-- Load robot model into robot_description parameter -->
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
@@ -50,5 +36,19 @@
 
   <!--RVIZ-->
   <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/EKF.rviz"/>
+
+  <!-- The path_ekf_plotter node -->
+  <node name="path_ekf_plotter" type="plot_ekf_path.py" pkg="waffle_pick_place">
+  </node>
+
+  <!-- The path_odom_plotter node -->
+  <node name="path_odom_plotter" type="path_odom_plotter.py" pkg="odom_to_trajectory">
+  </node>
+
+  <!--EKF node-->
+ <node pkg="waffle_pick_place" type="testekf.py" name="ekfnode" output="screen">
+   <param name="output_frame" value="odom_combined"/>
+   <param name="base_footprint_frame" value="base_footprint"/>
+ </node>
 
 </launch>
