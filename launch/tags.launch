@@ -13,7 +13,7 @@
   <arg name="max_track_error" default="0.2" />
   <arg name="cam_image_topic" default="/camera/rgb/image_raw" />
   <arg name="cam_info_topic" default="/camera/rgb/camera_info" />
-  <arg name="output_frame" default="base_footprint"/>
+  <arg name="output_frame" default="base_link"/>
 
 
   <!-- turtlebot3_diagnostics -->
@@ -38,7 +38,7 @@
   </node>
 
   <!-- TF transform -->
-  <node pkg="tf" name="world_frames_connection" type="static_transform_publisher" args="1 -3 0 0 0 -1.57 /base_footprint /camera_rgb_optical_frame 100"/>
+  <!-- <node pkg="tf" name="cam_to_base" type="static_transform_publisher" args="0 0 0 0 0 0 /base_link /camera_rgb_optical_frame 100"/> -->
 
   <!-- AR track -->
   <node pkg="ar_track_alvar" name="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen">
