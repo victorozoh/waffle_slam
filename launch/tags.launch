@@ -37,9 +37,6 @@
 
   </node>
 
-  <!-- TF transform -->
-  <!-- <node pkg="tf" name="cam_to_base" type="static_transform_publisher" args="0 0 0 0 0 0 /base_link /camera_rgb_optical_frame 100"/> -->
-
   <!-- AR track -->
   <node pkg="ar_track_alvar" name="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen">
     <param name="marker_size" type="double" value="$(arg marker_size)" />

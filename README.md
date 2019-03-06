@@ -14,7 +14,8 @@ The two key questions that inspired the development of SLAM are:
 - Where is the robot in the world?
 - Where are the stationary/moving items in the world?
 
-The answers to the two questions above form components of the state of the robot which we wish to know at all times.
+The answers to the questions above are the components of the robot's state. We wish to know this state at all times in order to accomplish tasks like Planning
+and Navigation.
 By definition, the state of a robot is the collection of all aspects of the robot and environment that impact the future. Due to uncertainty
 in the dynamics and interaction of a robot and it's environment, the state of a robot is represented with a probability density function(pdf).
 The challenge is then to model the propagation of the this pdf as the robot moves and interacts with it's environment.

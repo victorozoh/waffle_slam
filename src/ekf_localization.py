@@ -6,6 +6,7 @@ import math
 import tf
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
+from ar_track_alvar_msgs.msg import AlvarMarkers
 from geometry_msgs.msg import Twist, Point, Quaternion, Vector3, PoseWithCovarianceStamped
 
 last_time = 0.0
@@ -33,6 +34,7 @@ class ExtendedKalmanFilter(object):
         self.control_velocity = None # current velocity commands from twist message on cmd_vel topic
         self.odom_data = None # holds current odometry velocities
         self.imu_data = None # current data from /imu topic
+        self.ar_data = None # holds measurements from the ar_pose_marker topic
         self.old_control_vel = np.array([0.0]*3)
 
     def twistCallback(self, msg):
@@ -41,9 +43,11 @@ class ExtendedKalmanFilter(object):
     def imuCallback(self, msg):
         self.imu_data = msg
 
+    def artagCallback(self, msg):
+        self.ar_data = msg
+
     def odomCallback(self, msg):
             self.odom_data = msg
-
             # update and publish with all the measurements gathered
             self.update_and_publish()
             # Also publish tf
@@ -75,6 +79,8 @@ class ExtendedKalmanFilter(object):
             odom_meas = (self.odom_data.pose.pose.position.x,
                          self.odom_data.pose.pose.position.y,
                          euler[2])
+
+            # get current ar_tag measurements for all detected markers
 
             dt = rospy.Time.now().to_sec() - last_time # delta time
             global last_time
@@ -177,6 +183,9 @@ if __name__ == "__main__":
         twist_sub = rospy.Subscriber('cmd_vel', Twist, ekf.twistCallback)
         imu_sub = rospy.Subscriber('imu', Imu, ekf.imuCallback)
         odom_sub = rospy.Subscriber('odom', Odometry, ekf.odomCallback)
+
+        # Subscribe to ar_pose_marker topic to get measuerements
+        artag_dub = rospy.Subscriber('ar_pose_marker', AlvarMarkers, ekf.artagCallback)
 
         rospy.spin()
     except rospy.ROSInterruptException:
