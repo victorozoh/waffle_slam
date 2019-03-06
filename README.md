@@ -8,7 +8,7 @@ SLAM Project
 
 ## Overview
 The goal of this project is to implement SLAM and utilize the Turtlebot3 Waffle Pi robot to navigate.
-SLAM is a fundamental aspect of autonomy is robotics. Just like we cannot have a postal system
+SLAM is a fundamental aspect of autonomy in robotics. Just like we cannot have a postal system
 without zip codes or computer network without some Internet Protocol addressing, we cannot have autonomous robots without SLAM.
 The two key questions that inspired the development of SLAM are:
 - Where is the robot in the world?

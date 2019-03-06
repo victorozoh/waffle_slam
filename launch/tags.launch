@@ -6,6 +6,16 @@
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
   <arg name="world" default="$(find waffle_pick_place)/worlds/waffle.world"/>
+
+  <!-- parameters for AR tag node -->
+  <arg name="marker_size" default="9.0" />
+  <arg name="max_new_marker_error" default="0.2" />
+  <arg name="max_track_error" default="0.2" />
+  <arg name="cam_image_topic" default="/camera/rgb/image_raw" />
+  <arg name="cam_info_topic" default="/camera/rgb/camera_info" />
+  <arg name="output_frame" default="base_footprint"/>
+
+
   <!-- turtlebot3_diagnostics -->
   <!-- <include file="$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch" /> -->
 
@@ -26,6 +36,18 @@
   <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"  args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description">
 
   </node>
+
+  <!-- AR track -->
+  <node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen">
+    <param name="marker_size" type="double" value="$(arg marker_size)" />
+    <param name="max_new_marker_error" type="double" value="$(arg max_new_marker_error)" />
+    <param name="max_track_error" type="double" value="$(arg max_track_error)" />
+    <param name="output_frame" type="double" value="$(arg output_frame)" />
+
+    <remap from="camera_image" to="$(arg cam_image_topic)" />
+    <remap from="camera_info" to="$(arg cam_info_topic)" />
+  </node>
+
 
   <!--Turtlebot3 Teleop has inbuilt velocity smoother-->
   <!-- <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen">
