@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot name="simple_artag">
+  <link name="simple_box_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1.0" />
+      <inertia ixx="0.07416" ixy="0.0" ixz="0.0" iyy="0.0585416" iyz="0.0" izz="0.02604"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.2 0.2 0.2"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 1.57 1.57"/>
+      <geometry>
+        <mesh filename="package://waffle_pick_place/worlds/artag.dae"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <gazebo reference="simple_box_link">
+    <kp>100000.0</kp>
+    <kd>100000.0</kd>
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+
+
+</robot>

@@ -1,29 +1,39 @@
-SLAM and Manipulation Project
+SLAM Project
 =============================
 
-### using a Turtlebot3 Waffle Pi with OpenManipulator
+### Implementing SLAM(Simultaneous Localization and Mapping) on a Turtlebot3 Waffle Pi
 
 #### *Victor Ozoh -- MS in Robotics Winter Quarter Project - Northwestern University*
 
 
 ## Overview
-The goal of this project is to utilize the Turtlebot3 robot to accomplish a pick an place
-task with several objects. There are a few sub tasks for the robot to perform. They include:
+The goal of this project is to implement SLAM and utilize the Turtlebot3 Waffle Pi robot to navigate.
+SLAM is a fundamental aspect of autonomy is robotics. Just like we cannot have a postal system
+without zip codes or computer network without some Internet Protocol addressing, we cannot have autonomous robots without SLAM.
+The two key questions that inspired the development of SLAM are:
+- Where is the robot in the world?
+- Where are the stationary/moving items in the world?
 
-- Perform SLAM(Simultaneous Localisation and Mapping) or use a known map and implement localisation
+The answer to the two questions above form components of the state of the robot which we wish to know at all times.
+By definition, the state of a robot is the collection of all aspects of the robot that impact the future. Due to uncertainty
+in the dynamics and interaction of a robot and it's environment, the state of a robot is represented with a probability density function(pdf).
+The challenge is then to model the propagation of the this pdf as the robot moves in it's environment.
+The proper representation and modeling of the dynamics of the pdf has been solved in a probabilistic framework using the Bayes Filter.
+The Kalman, Extended Kalman Filter and Particle Filters are all unique implementations of the Bayes Filter.
+
+There are a few sub tasks for the robot to perform. They include:
+
+- Perform SLAM(Simultaneous Localization and Mapping) or use a known map and implement localization
 - Navigation to location where objects are placed
-- Manipulation: picking up items and dropping them
 - Obstacle avoidance
 
 ## Basic goals
-- Supply robot with a known map of an area and path to follow
-- Use one item/block as object to be identified and picked up. The pick up and drop off
-locations will be supplied to the robot.
-- Ignore obstacles. Leave area clear of fixed or moving obstacles
+- Implement SLAM. Compare Particle Filter with EKF(Extended Kalman Filter)
 
 ## Stretch goals
 - Implement exploration algorithm to be used for mapping.
-- Implement SLAM. Compare Particle Filter with EKF(Extended Kalman Filter)
+- Use one item/block as object to be identified and picked up. The pick up and drop off
+locations will be supplied to the robot.
 - Incorporate stationary and moving obstacles
 - Get the robot to utilize computer vision to find where items are located and where to drop them off. This may involve having to implement a solution to Loop Closure Detection which is about the process of finding a previously visited place.
 
@@ -72,7 +82,7 @@ Loop Closure Detection
 - Linearization of non-linear function is necessary
 
 ### Overall Structure
-- Send control commands via keyboard/jotstick. Or develop exploration algorithm
+- Send control commands via keyboard/joystick. Or develop exploration algorithm
 - Subscribe to IMU and Odometry data
 - Publish filtered pose on a new topic
 - view trajectory on Rviz

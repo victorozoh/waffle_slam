@@ -11,28 +11,82 @@
       <uri>model://ground_plane</uri>
     </include>
 
-    <!-- objects -->
+    <!-- MARKERS -->
 
-    <population name="box_population1">
-      <model name="box1">
-        <include>
-          <static>true</static>
-          <uri>model://cardboard_box</uri>
-        </include>
-      </model>
-      <pose>0 0 0 0 0 0</pose>
-      <box>
-        <size>3 3 0.05</size>
-      </box>
-      <model_count>4</model_count>
-      <distribution>
-        <type>grid</type>
-        <rows>2</rows>
-        <cols>2</cols>
-        <step>1.0 1.5 0</step>
-      </distribution>
-    </population>
+    <!-- marker 0 -->
+    <model name="MarkerData_0">
+      <pose>0 0 0  0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://temptags/markerdata_0/meshes/MarkerData_0.dae</uri>
+            <scale>0.18 0.18 0.18</scale></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
 
+    <!-- marker 1 -->
+    <model name="MarkerData_1">
+      <pose>1 -1 0  0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://temptags/markerdata_1/meshes/MarkerData_1.dae</uri>
+            <scale>0.18 0.18 0.18</scale></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <!-- marker 2 -->
+    <model name="MarkerData_2">
+      <pose>1 1 0  0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://temptags/markerdata_2/meshes/MarkerData_2.dae</uri>
+            <scale>0.18 0.18 0.18</scale></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <!-- marker 3 -->
+    <model name="MarkerData_3">
+      <pose>2 -2 0  0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://temptags/markerdata_3/meshes/MarkerData_3.dae</uri>
+            <scale>0.18 0.18 0.18</scale></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <!-- marker 4 -->
+    <model name="MarkerData_4">
+      <pose>2 0.5 0  0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://temptags/markerdata_4/meshes/MarkerData_4.dae</uri>
+            <scale>0.18 0.18 0.18</scale></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
 
 
   </world>

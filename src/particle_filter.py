@@ -23,7 +23,7 @@ class ParticleFilter(object):
         self.laser_data = None # holds LaserScan measurements
         self.range_method = None
         self.B = None
-        self.control_velocity = None
+        self.control_velocity = None # holds the twist from the cmd_vel topic
         # noise parameters
         self.mu = 0
         self.std = 0.1
