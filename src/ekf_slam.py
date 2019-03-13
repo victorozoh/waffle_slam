@@ -5,6 +5,7 @@ import numpy as np
 import math
 import tf
 from std_msgs.msg import Float32
+from waffle_pick_place.msg import Spot, SpotArray
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 from ar_track_alvar_msgs.msg import AlvarMarkers
@@ -101,7 +102,16 @@ class ExtendedKalmanFilter(object):
             new_state, new_cov = self.estimate(vel_controls, ar_meas, odom_meas, dt)
 
             # publish the positions of landmarks for plotting
-            pub.publish(new_state)
+            map_state = SpotArray()
+            temp_spot = Spot()
+            temp_spot.id = 'robot'
+            temp_spot.position = list(new_state[:3]) # robot's pose
+            map_state.data.append(temp_spot)
+            for i, feature in enumerate(ar_meas):
+                temp_spot.id = str(feature[2])
+                temp_spot.position = list(new_state[(2*i) + 3 : (2*i) + 5])
+                map_state.data.append(temp_spot)
+            pub.publish(map_state)
 
     def estimate(self, vel_controls, ar_meas, odom_meas, dt):
         # prediction/motion, velocity model
@@ -177,7 +187,7 @@ if __name__ == "__main__":
 
         # 5(range, bearing) markers + robot pose(x, y, theta), means dim_x = 13
         ekf = ExtendedKalmanFilter(dim_z=2, dim_x=9)
-        pub = rospy.Publisher('landmark', Float32, queue_size=10)
+        pub = rospy.Publisher('landmark', SpotArray, queue_size=10)
 
         global last_time
         last_time = rospy.Time.now().to_sec()
