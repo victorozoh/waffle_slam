@@ -42,21 +42,17 @@ locations will be supplied to the robot.
 ## Timeline
 - 1/30/2019:  Complete set up of Waffle Pi robot
 - 2/6/2019:   Set up mock environment for robot and specify a map in ROS
-- 2/13/2019:  Complete map and path specification. Get robot to pick up a block and place it at drop off location.
 - 2/20/2019: Implement Exploration algorithm and Particle filter or EKF to make robot more autonomous
 - 2/27/2019:  More SLAM work
 - 3/6/2019: Implement obstacle avoidance for static objects
-- 3/13/2019:  Implement loop closure detection.
+
 
 ## Future Work
 Loop Closure Detection
 
 ## Packages
 - ar_track_alvar
-- gmapping
-- move_base
-- move_group
-- AMCL
+
 
 ## Notes
 - SLAM is a key step for proper Navigation and Planning in mobile autonomous systems
