@@ -9,7 +9,7 @@
 
   <!-- parameters for AR tag node -->
   <arg name="marker_size" default="9.0" />
-  <arg name="max_new_marker_error" default="0.2" />
+  <arg name="max_new_marker_error" default="0.01" />
   <arg name="max_track_error" default="0.2" />
   <arg name="cam_image_topic" default="/camera/rgb/image_raw" />
   <arg name="cam_info_topic" default="/camera/rgb/camera_info" />
@@ -50,10 +50,14 @@
 
 
   <!--Turtlebot3 Teleop has inbuilt velocity smoother-->
-  <!-- <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen">
-  </node> -->
+  <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen">
+  </node>
 
   <!--RVIZ-->
   <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/Tags.rviz"/>
+
+  <!-- EKF SLAM node -->
+  <node pkg="waffle_pick_place" type="ekf_slam.py" name="ekf_slam" output="screen"/>
+
 
 </launch>
