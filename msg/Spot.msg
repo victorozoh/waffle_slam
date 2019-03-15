@@ -1,2 +1,2 @@
 string id
-float32[] position
+float64[] position

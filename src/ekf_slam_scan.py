@@ -7,8 +7,7 @@ import tf
 from std_msgs.msg import Float32
 from waffle_pick_place.msg import Spot, SpotArray
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import Imu
-from ar_track_alvar_msgs.msg import AlvarMarkers
+from sensor_msgs.msg import Imu, LaserScan
 from geometry_msgs.msg import Twist, Point, Quaternion, Vector3, PoseWithCovarianceStamped
 
 last_time = 0.0
@@ -37,12 +36,10 @@ class ExtendedKalmanFilter(object):
         self.F = np.eye(self.dim_x) # Jacobian matrix of motion model for updating covariance
         self.B = None#np.zeros((dim_x,2)) # controls matrix
         self.H = np.zeros((2,self.dim_x)) # Jacobian matrix i.e H = Jacobian(h)
-        self.H[0][0] = self.H[1][1] = 1 # Initialize self.H for future use in landmark correction stage
-
         self.control_velocity = None # current velocity commands from twist message on cmd_vel topic
         self.odom_data = None # holds current odometry velocities
         self.imu_data = None # current data from /imu topic
-        self.ar_data = None # holds measurements from the ar_pose_marker topic
+        self.laser_data = None # holds measurements from the ar_pose_marker topic
 
     def twistCallback(self, msg):
         self.control_velocity = msg
@@ -53,19 +50,20 @@ class ExtendedKalmanFilter(object):
     def odomCallback(self, msg):
         self.odom_data = msg
 
-    def artagCallback(self, msg):
-        self.ar_data = msg
+    def laserCallback(self, msg):
+        self.laser_data = msg
         # update and publish with all the measurements gathered
         self.update_and_publish()
 
 
     def getHmatrix(self, i):
         Hmatrix = self.H
+        Hmatrix[0][0] = Hmatrix[1][1] = 1
         Hmatrix[0][(2*i) + 3] = Hmatrix[1][(2*i) + 4] = 1
         return Hmatrix
 
     def update_and_publish(self):
-        if None in [self.ar_data, self.odom_data]:
+        if None in [self.laser_data, self.odom_data]:
             pass
         else:
             # controls
@@ -83,13 +81,32 @@ class ExtendedKalmanFilter(object):
                          self.odom_data.pose.pose.position.y,
                          euler[2])
 
-            # get current ar_tag measurements for all detected markers
-            artag_x = [tag.pose.pose.position.x for tag in self.ar_data.markers]
-            artag_y = [tag.pose.pose.position.y for tag in self.ar_data.markers]
-            artag_id = [tag.id for tag in self.ar_data.markers]
+            # get current laser scan measurements
+            laser_angles = (self.laser_data.angle_min, self.laser_data.angle_max, self.laser_data.angle_increment)
+            # get indexes and range values for objects detected
+            laser =  [(i, val) for i, val in enumerate(self.laser_data.ranges) if val != float('inf')]
+            L = len(laser)
+            templist = []
+            biglist =[]
+            for i in range(1,L):
+                if laser[i-1][0] == laser[i][0] -1:
+                    templist.append(laser[i-1])
+                else:
+                    templist.append(laser[i-1])
+                    biglist.append(templist)
+                    templist =[]
+                if i == (L -1) and (laser[i-1][0] == laser[i][0]-1):
+                    templist.append(laser[i])
+                    biglist.append(templist)
 
-            ar_meas = zip(artag_x, artag_y, artag_id)
-
+            #rospy.loginfo('Detected ranges %s', biglist)
+            biglist = biglist[:-1]
+            # loop through list of lists to get range measurement
+            for val in biglist:
+                # Each list holds tuples of (index, range) for a landmark
+                # compute bearing and range for each landmark
+                distlist = [r[1] for r in val] # get list of distances to an object.
+                dist = sum(distlist)/len(distlist)
             # change self.dim_x to match the number of features detected
             # measurements will be (x_i, y_i); TODO: (range, bearing)
             #self.update_state_dimensions(ar_meas)
@@ -99,7 +116,7 @@ class ExtendedKalmanFilter(object):
             last_time = rospy.Time.now().to_sec()
 
             # call extended kalman filter function
-            new_state, new_cov = self.estimate(vel_controls, ar_meas, odom_meas, dt)
+            new_state, new_cov = self.estimate(vel_controls, laser_meas, odom_meas, dt)
 
             # publish the positions of landmarks for plotting
             map_state = SpotArray()
@@ -144,42 +161,30 @@ class ExtendedKalmanFilter(object):
         #----------------- LANDMARK CORRECTION--------------------#
 
         #1 Known landmarks
-        if len(ar_meas) > 0:
-            # loop through all observed features(x_i, y_i, id)
-            for feature in ar_meas:
-                index = feature[2]
-                # measurement update->odometry model. compute residual/innovation
-                # get h(x) and H(x) measurement models
-                measured_z = np.array([feature[0] + odom_meas[0], feature[1] + odom_meas[1]])
-                rospy.loginfo('feature[0] is %s', feature[0])
-                predicted_z = np.array([feature[0] + x_prime[0], feature[1] + x_prime[1]])
-                innovation = measured_z.reshape((2,1)) - predicted_z.reshape((2,1))
-
-                # ensure shapes match for gain calculations
-                # Get the proper dimensions and values for H and P
-                Hmat = self.getHmatrix(index)
-                # compute innovation covariance
-                innovation_covariance = np.dot(Hmat, self.P).dot(Hmat.T) + self.R
-                # compute kalman gain
-                kalman_gain = np.dot(self.P, Hmat.T).dot(np.linalg.inv(innovation_covariance))
-
-                # update state
-                #rospy.loginfo('The error is %s', np.dot(kalman_gain, innovation))
-                self.x = x_prime + np.dot(kalman_gain, innovation)
-                #rospy.loginfo('The new state is %s ', self.x)
-                self.P = self.P - np.dot(kalman_gain,Hmat).dot(self.P)
-
-        #2 Initialize new landmarks
-        # check for new landmarks
-        # landmark_indices = [i for i, x in enumerate(self.landmarks) if x == 0]
+        # if len(laser_meas) > 0:
+        #     # loop through all observed features(x_i, y_i, id)
+        #     for feature in ar_meas:
+        #         index = feature[2]
+        #         # measurement update->odometry model. compute residual/innovation
+        #         # get h(x) and H(x) measurement models
+        #         measured_z = np.array([feature[0] + odom_meas[0], feature[1] + odom_meas[1]])
+        #         rospy.loginfo('feature[0] is %s', feature[0])
+        #         predicted_z = np.array([feature[0] + x_prime[0], feature[1] + x_prime[1]])
+        #         innovation = measured_z.reshape((2,1)) - predicted_z.reshape((2,1))
         #
-        # if len(landmark_indices) > 0:
-        #     try:
-        #         map_index = self.map.index(0)
-        #     except ValueError:
-        #         map_index = None
-        #     if any_space is not None:
-        #         self.map[map_index] = 1
+        #         # ensure shapes match for gain calculations
+        #         # Get the proper dimensions and values for H and P
+        #         Hmat = self.getHmatrix(index)
+        #         # compute innovation covariance
+        #         innovation_covariance = np.dot(Hmat, self.P).dot(Hmat.T) + self.R
+        #         # compute kalman gain
+        #         kalman_gain = np.dot(self.P, Hmat.T).dot(np.linalg.inv(innovation_covariance))
+        #
+        #         # update state
+        #         #rospy.loginfo('The error is %s', np.dot(kalman_gain, innovation))
+        #         self.x = x_prime + np.dot(kalman_gain, innovation)
+        #         #rospy.loginfo('The new state is %s ', self.x)
+        #         self.P = self.P - np.dot(kalman_gain,Hmat).dot(self.P)
 
         # return updated state
         return self.x, self.P
@@ -199,7 +204,7 @@ if __name__ == "__main__":
         odom_sub = rospy.Subscriber('odom', Odometry, ekf.odomCallback)
 
         # Subscribe to ar_pose_marker topic to get measuerements
-        artag_sub = rospy.Subscriber('ar_pose_marker', AlvarMarkers, ekf.artagCallback)
+        laser_sub = rospy.Subscriber('scan', LaserScan, ekf.laserCallback)
 
         rospy.spin()
     except rospy.ROSInterruptException:

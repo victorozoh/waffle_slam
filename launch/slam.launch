@@ -10,7 +10,7 @@
   <!-- parameters for AR tag node -->
   <arg name="marker_size" default="9.0" />
   <arg name="max_new_marker_error" default="0.05" />
-  <arg name="max_track_error" default="0.1" />
+  <arg name="max_track_error" default="0.02" />
   <arg name="cam_image_topic" default="/camera/rgb/image_raw" />
   <arg name="cam_info_topic" default="/camera/rgb/camera_info" />
   <arg name="output_frame" default="base_link"/>
@@ -24,7 +24,7 @@
 
   <!-- load world model for gazebo -->
   <include file="$(find waffle_pick_place)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find waffle_pick_place)/worlds/waffle.world"/>
+    <arg name="world_name" value="$(find waffle_pick_place)/worlds/slam.world"/>
   </include>
 
   <!-- Needed for rviz -->
@@ -37,27 +37,16 @@
 
   </node>
 
-  <!-- AR track -->
-  <node pkg="ar_track_alvar" name="ar_track_alvar" type="individualMarkersNoKinect" respawn="false" output="screen">
-    <param name="marker_size" type="double" value="$(arg marker_size)" />
-    <param name="max_new_marker_error" type="double" value="$(arg max_new_marker_error)" />
-    <param name="max_track_error" type="double" value="$(arg max_track_error)" />
-    <param name="output_frame" type="string" value="$(arg output_frame)" />
-
-    <remap from="camera_image" to="$(arg cam_image_topic)" />
-    <remap from="camera_info" to="$(arg cam_info_topic)" />
-  </node>
-
 
   <!--Turtlebot3 Teleop has inbuilt velocity smoother-->
   <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"  output="screen">
   </node>
 
   <!--RVIZ-->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/Tags.rviz"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/scan.rviz"/>
 
   <!-- EKF SLAM node -->
-  <node pkg="waffle_pick_place" type="ekf_slam.py" name="ekf_slam" output="screen"/>
+  <!-- <node pkg="waffle_pick_place" type="ekf_slam_scan.py" name="ekf_slam" output="screen"/> -->
 
 
 </launch>
