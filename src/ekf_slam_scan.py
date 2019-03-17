@@ -27,8 +27,6 @@ class ExtendedKalmanFilter(object):
         self.std_bearing = 0.1
         # state vector; Robot pose is self.x[:3]
         self.x = np.zeros((self.dim_x,1))
-        # There are 2 landmarks(coke cans)
-        self.map = [0]*5 # robot = map[0], while landmarks make up indices 1:5
         # State vector Covariance matrix, initial uncertainty
         self.P = np.zeros((self.dim_x,self.dim_x)) # start with zero uncertainty
         # Process/Motion Noise
@@ -36,7 +34,7 @@ class ExtendedKalmanFilter(object):
         # Measurement Noise/Uncertainty.
         self.Q = None
         self.f = np.eye(self.dim_x) # x = f(x) + Bu
-        self.F = np.hstack((np.eye(3), np.zeros(3, self.dim_x - 3))) # Jacobian matrix of motion model for updating covariance
+        self.F = None# Jacobian matrix of motion model for updating covariance
         self.g = None # using notation in probabilistic robotics
         self.G = None # I + FgF
         self.B = None #np.zeros((dim_x,2)) # controls matrix
@@ -62,9 +60,9 @@ class ExtendedKalmanFilter(object):
         self.update_and_publish()
 
     def getInno_InnoCov_Hmat(self, j, theta, measured_z):
-        m_jx = self.x[(3*j]
-        m_jy = self.x[(3*j + 1]
-        m_js = self.x[(3*j + 2]
+        m_jx = self.x[3*j]
+        m_jy = self.x[3*j + 1]
+        m_js = self.x[3*j + 2]
 
         delta_x = m_jx - rx
         delta_y = m_jy - ry
@@ -165,7 +163,7 @@ class ExtendedKalmanFilter(object):
 
             pub.publish(map_state)
 
-    def estimate(self, vel_controls, ar_meas, odom_meas, dt):
+    def estimate(self, vel_controls, laser_meas, odom_meas, dt):
         #----------------- MOTION UPDATE--------------------#
 
         rx = odom_meas[0] # robot's x position
@@ -183,6 +181,11 @@ class ExtendedKalmanFilter(object):
         vel = vel + noise[:2].reshape((2,1))
 
         # x_prime[:3] =  self.x[:3] + np.dot(self.B, vel)
+        if self.num_landmarks > 0:
+            self.F = np.hstack((np.eye(3), np.zeros(3, 3*self.num_landmarks)))
+        else:
+            self.F = np.eye(3)
+
         x_prime = self.x + np.dot(self.F.T, np.dot(self.B, vel))
         self.g = np.array([[0, 0, -1 * linear_vel * dt* math.sin(theta)],
                             [0, 0, linear_vel * dt * math.cos(theta)],
