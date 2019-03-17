@@ -21,7 +21,7 @@ class ExtendedKalmanFilter(object):
         self.dim_x = dim_x
         self.dim_z = dim_z
         self.num_landmarks = 0 # int((self.dim_x - 3)/3)
-        self.alpha = 2.5 # mahalanobis distance threshold
+        self.alpha = 25 # mahalanobis distance threshold
         # initial noise values for range and bearing
         self.std_range = 0.1
         self.std_bearing = 0.1
@@ -60,15 +60,17 @@ class ExtendedKalmanFilter(object):
         self.update_and_publish()
 
     def getInno_InnoCov_Hmat(self, j, theta, measured_z, rx, ry):
-        m_jx = self.x[3*j]
-        m_jy = self.x[3*j + 1]
-        m_js = self.x[3*j + 2]
+        m_jx = float(self.x[3*j])
+        m_jy = float(self.x[3*j + 1])
+        m_js = float(self.x[3*j + 2])
 
         delta_x = m_jx - rx
         delta_y = m_jy - ry
         delta_q = np.linalg.norm([delta_x, delta_y])
+        # rospy.loginfo('shape of state vector is %s', self.x.shape)
+        lm_angle = math.atan2(delta_y, delta_x) - theta
 
-        predicted_z = np.array([delta_q, math.atan2(delta_y,delta_x) - theta, m_js]).reshape((3,1))
+        predicted_z = np.array([delta_q, lm_angle, m_js], dtype=np.float64).reshape((3,1))
 
         self.h = (1/delta_q**2) * np.array([[-delta_q * delta_x , -delta_q * delta_y, 0, delta_q * delta_x, delta_q * delta_y, 0],
                                             [delta_y, -delta_x, -delta_q**2, -delta_y, delta_x, 0],
@@ -128,7 +130,6 @@ class ExtendedKalmanFilter(object):
                     templist.append(laser[i])
                     biglist.append(templist)
 
-            #rospy.loginfo('Detected ranges %s', biglist)
             biglist = biglist[:-1] # ignore the last list because the reading is the same as the first list
             laser_meas = []
             # loop through list of lists to get range measurement
@@ -139,7 +140,6 @@ class ExtendedKalmanFilter(object):
                 dist = sum(distlist)/len(distlist) # use average of range readings
                 bearing = laser_angles[0] + val[0][0] * laser_angles[2] # same as angle_min + i*angle_increment
                 laser_meas.append((dist, bearing, i))
-            #rospy.loginfo('laser readings are %s', laser_meas)
 
             dt = rospy.Time.now().to_sec() - last_time # delta time
             global last_time
@@ -186,7 +186,8 @@ class ExtendedKalmanFilter(object):
         else:
             self.F = np.eye(3)
 
-        x_prime = self.x + np.dot(self.F.T, np.dot(self.B, vel))
+        # x_prime = self.x + np.dot(self.F.T, np.dot(self.B, vel))
+        self.x = self.x + np.dot(self.F.T, np.dot(self.B, vel))
         self.g = np.array([[0, 0, -1 * linear_vel * dt* math.sin(theta)],
                             [0, 0, linear_vel * dt * math.cos(theta)],
                             [0, 0, 0]])
@@ -194,6 +195,7 @@ class ExtendedKalmanFilter(object):
 
         # update state covariance after motion
         self.R = np.diag([randn()*0.1**2, randn()*0.1**2, randn()*0.1**2]) # motion noise
+        rospy.loginfo('The shape of P is %s ', self.P.shape)
         P_prime = np.dot(self.G, self.P).dot(self.G.T) + np.dot(self.F.T, self.R).dot(self.F)
 
         #----------------- LANDMARK CORRECTION--------------------#
@@ -204,18 +206,21 @@ class ExtendedKalmanFilter(object):
             # loop through all observed features => (range, bearing)
             for feature in laser_meas:
                 # get measurement
+                rospy.loginfo('The measurement is %s ', feature)
+                rospy.loginfo('The number of features is %s ', len(laser_meas))
                 measured_z = np.array(feature).reshape((3,1))
                 # initial landmark estimate => mu_prime
                 mu_prime = np.array([feature[0]*math.cos(feature[1] + theta),
                                      feature[0]*math.sin(feature[1] + theta),
                                      feature[2]]).reshape((3,1))
-                mu_prime = np.vstack((x_prime[:2],np.zeros((1,1)))) + mu_prime #keep shape as (3x1)
+                mu_prime = np.vstack((self.x[:2],np.zeros((1,1)))) + mu_prime #keep shape as (3x1)
 
                 phi_klist = [] # list of mahalanobis distances
                 # second loop to get data association
                 for j in range(1, self.num_landmarks + 1):
                     innovation, innovation_covariance, Hmat = self.getInno_InnoCov_Hmat(j, theta, measured_z, rx, ry)
-                    phi_k = np.dot(innovation.T, np.linalg.inv(innovation_covariance)).dot(innovation)
+                    phi_k = float(np.dot(innovation.T, np.linalg.inv(innovation_covariance)).dot(innovation))
+                    rospy.loginfo('The value of distance is %s ', phi_k)
                     phi_klist.append(phi_k)
 
                 phi_klist.append(self.alpha)
@@ -227,8 +232,13 @@ class ExtendedKalmanFilter(object):
                     self.dim_x += 3 #increase the dimension of the state vector
                     # enlarge the state and covariance matrix to account for new landmark
                     state_update = np.vstack((self.x, mu_prime))
-                    cov_update = np.vstack((np.hstack((self.P, np.zeros((len(self.x), 3)))),
+                    # rospy.loginfo('The shape of P is %s ', self.P.shape)
+                    rospy.loginfo('The shape of state vector is %s ', self.x.shape)
+
+                    cov_update = np.vstack((np.hstack((P_prime, np.zeros((len(self.x), 3)))),
                                             np.hstack((np.zeros((3, len(self.x))), np.eye(3)))))
+
+                    self.F = np.hstack((np.eye(3), np.zeros((3, 3*self.num_landmarks)) ))
 
                     self.x = state_update
                     self.P = cov_update
@@ -238,7 +248,7 @@ class ExtendedKalmanFilter(object):
                 # compute kalman gain
                 kalman_gain = np.dot(self.P, Hmat.T).dot(np.linalg.inv(innovation_covariance))
                 # update state
-                self.x = x_prime + np.dot(kalman_gain, innovation)
+                self.x = self.x + np.dot(kalman_gain, innovation)
                 #rospy.loginfo('The new state is %s ', self.x)
                 self.P = self.P - np.dot(kalman_gain,Hmat).dot(self.P)
 
