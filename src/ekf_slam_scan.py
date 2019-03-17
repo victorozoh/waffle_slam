@@ -224,6 +224,7 @@ class ExtendedKalmanFilter(object):
                 if ml_index == len(phi_klist) - 1:
                     # new landmark
                     self.num_landmarks += 1 #increase landmark count
+                    self.dim_x += 3 #increase the dimension of the state vector
                     # enlarge the state and covariance matrix to account for new landmark
                     state_update = np.vstack((self.x, mu_prime))
                     cov_update = np.vstack((np.hstack((self.P, np.zeros((len(self.x), 3)))),
