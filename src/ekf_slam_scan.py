@@ -59,7 +59,7 @@ class ExtendedKalmanFilter(object):
         # update and publish with all the measurements gathered
         self.update_and_publish()
 
-    def getInno_InnoCov_Hmat(self, j, theta, measured_z):
+    def getInno_InnoCov_Hmat(self, j, theta, measured_z, rx, ry):
         m_jx = self.x[3*j]
         m_jy = self.x[3*j + 1]
         m_js = self.x[3*j + 2]
@@ -79,7 +79,7 @@ class ExtendedKalmanFilter(object):
 
         Hmat =  np.dot(self.h, F_j)
         innovation_covariance = np.dot(Hmat, self.P).dot(Hmat.T) + self.Q
-
+        innovation_covariance =innovation_covariance.astype(np.float64) # in order to compute inverse
         # mahalanobis distance
         innovation = measured_z - predicted_z
 
@@ -214,7 +214,7 @@ class ExtendedKalmanFilter(object):
                 phi_klist = [] # list of mahalanobis distances
                 # second loop to get data association
                 for j in range(1, self.num_landmarks + 1):
-                    innovation, innovation_covariance, Hmat = self.getInno_InnoCov_Hmat(j, theta, measured_z)
+                    innovation, innovation_covariance, Hmat = self.getInno_InnoCov_Hmat(j, theta, measured_z, rx, ry)
                     phi_k = np.dot(innovation.T, np.linalg.inv(innovation_covariance)).dot(innovation)
                     phi_klist.append(phi_k)
 
@@ -234,7 +234,7 @@ class ExtendedKalmanFilter(object):
                     self.P = cov_update
 
                 # get the appropriate H matrix and innovation_covariance
-                innovation, innovation_covariance, Hmat = self.getInno_InnoCov_Hmat(ml_index+1, theta, measured_z)
+                innovation, innovation_covariance, Hmat = self.getInno_InnoCov_Hmat(ml_index+1, theta, measured_z, rx, ry)
                 # compute kalman gain
                 kalman_gain = np.dot(self.P, Hmat.T).dot(np.linalg.inv(innovation_covariance))
                 # update state
