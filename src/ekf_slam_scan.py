@@ -20,7 +20,8 @@ class ExtendedKalmanFilter(object):
         # dim_x corresponds to the dimensions of the state. In this case, [x, y, theta, x1, y1, s1, x2, y2, s2......xn, yn, sn]
         self.dim_x = dim_x
         self.dim_z = dim_z
-        self.num_landmarks = int((self.dim_x - 3)/3)
+        self.num_landmarks = 0 # int((self.dim_x - 3)/3)
+        self.alpha = 2.5 # mahalanobis distance threshold
         # initial noise values for range and bearing
         self.std_range = 0.1
         self.std_bearing = 0.1
@@ -60,6 +61,31 @@ class ExtendedKalmanFilter(object):
         # update and publish with all the measurements gathered
         self.update_and_publish()
 
+    def getInno_InnoCov_Hmat(self, j, theta, measured_z):
+        m_jx = self.x[(3*j]
+        m_jy = self.x[(3*j + 1]
+        m_js = self.x[(3*j + 2]
+
+        delta_x = m_jx - rx
+        delta_y = m_jy - ry
+        delta_q = np.linalg.norm([delta_x, delta_y])
+
+        predicted_z = np.array([delta_q, math.atan2(delta_y,delta_x) - theta, m_js]).reshape((3,1))
+
+        self.h = (1/delta_q**2) * np.array([[-delta_q * delta_x , -delta_q * delta_y, 0, delta_q * delta_x, delta_q * delta_y, 0],
+                                            [delta_y, -delta_x, -delta_q**2, -delta_y, delta_x, 0],
+                                            [0, 0, 0, 0, 0, delta_q**2]])
+
+        tempmat = np.hstack((np.zeros((3,3)), np.zeros((3, 3*j -3)), np.eye(3), np.zeros((3, 3 * self.num_landmarks - 3*j))))
+        F_j = np.vstack((self.F, tempmat))
+
+        Hmat =  np.dot(self.h, F_j)
+        innovation_covariance = np.dot(Hmat, self.P).dot(Hmat.T) + self.Q
+
+        # mahalanobis distance
+        innovation = measured_z - predicted_z
+
+        return innovation, innovation_covariance, Hmat
 
     def getHmatrix(self, i):
         Hmatrix = self.H
@@ -127,15 +153,15 @@ class ExtendedKalmanFilter(object):
             # publish the positions of landmarks for plotting
             map_state = SpotArray()
             temp_spot = Spot()
-            # temp_spot.id = 'robot'
-            # temp_spot.position = list(new_state[:3]) # robot's pose
-            # map_state.data.append(temp_spot)
-            # for feature in ar_meas:
-            #     i = feature[2]
-            #     temp_spot = Spot()
-            #     temp_spot.id = 'marker_' + str(i)
-            #     temp_spot.position = list(new_state[(2*i) + 3 : (2*i) + 5])
-            #     map_state.data.append(temp_spot)
+            temp_spot.id = 'robot'
+            temp_spot.position = list(new_state[:3]) # robot's pose
+            map_state.data.append(temp_spot)
+            for i, feature in enumerate(laser_meas):
+                i += 1
+                temp_spot = Spot()
+                temp_spot.id = 'landmark_' + str(feature[2])
+                temp_spot.position = list(new_state[(3*i): (3*i) + 3])
+                map_state.data.append(temp_spot)
 
             pub.publish(map_state)
 
@@ -185,33 +211,28 @@ class ExtendedKalmanFilter(object):
                 phi_klist = [] # list of mahalanobis distances
                 # second loop to get data association
                 for j in range(1, self.num_landmarks + 1):
-                    m_jx = self.x[(3*j]
-                    m_jy = self.x[(3*j + 1]
-                    m_js = self.x[(3*j + 2]
-
-                    delta_x = m_jx - rx
-                    delta_y = m_jy - ry
-                    delta_q = np.linalg.norm([delta_x, delta_y])
-
-                    predicted_z = np.array([delta_q, math.atan2(delta_y,delta_x) - theta, m_js]).reshape((3,1))
-
-                    self.h = np.array([[-delta_q * delta_x , -delta_q * delta_y, 0, delta_q * delta_x, delta_q * delta_y, 0],
-                                       [delta_y, -delta_x, -1, -delta_y, delta_x, 0],
-                                       [0, 0, 0, 0, 0, 1]])
-                    tempmat = np.hstack((np.zeros((3,3)), np.zeros((3, 3*j -3)), np.eye(3), np.zeros((3, 3 * self.num_landmarks - 3*j))))
-                    F_j = np.vstack((self.F, tempmat))
-
-                    self.H = (1/delta_q**2) *  np.dot(self.h, F_j)
-                    innovation_covariance = np.dot(self.H, self.P).dot(self.H.T) + self.Q
-
-                    # mahalanobis distance
-                    innovation = measured_z - predicted_z
+                    innovation, innovation_covariance, Hmat = self.getInno_InnoCov_Hmat(j, theta, measured_z)
                     phi_k = np.dot(innovation.T, np.linalg.inv(innovation_covariance)).dot(innovation)
                     phi_klist.append(phi_k)
 
+                phi_klist.append(self.alpha)
+                ml_index = phi_klist.index(min(phi_klist)) # max likelihood for data association
+                # if distance to all existing landmarks exceeds threshold, a new landmark is created
+                if ml_index == len(phi_klist) - 1:
+                    # new landmark
+                    self.num_landmarks += 1 #increase landmark count
+                    # enlarge the state and covariance matrix to account for new landmark
+                    state_update = np.vstack((self.x, mu_prime))
+                    cov_update = np.vstack((np.hstack((self.P, np.zeros((len(self.x), 3)))),
+                                            np.hstack((np.zeros((3, len(self.x))), np.eye(3)))))
 
+                    self.x = state_update
+                    self.P = cov_update
+
+                # get the appropriate H matrix and innovation_covariance
+                innovation, innovation_covariance, Hmat = self.getInno_InnoCov_Hmat(ml_index+1, theta, measured_z)
                 # compute kalman gain
-                kalman_gain = np.dot(self.P, self.H.T).dot(np.linalg.inv(innovation_covariance))
+                kalman_gain = np.dot(self.P, Hmat.T).dot(np.linalg.inv(innovation_covariance))
                 # update state
                 self.x = x_prime + np.dot(kalman_gain, innovation)
                 #rospy.loginfo('The new state is %s ', self.x)
@@ -228,7 +249,7 @@ if __name__ == "__main__":
 
         # 3(range, bearing, signature) landmarks + robot pose(x, y, theta), means dim_x = 9
         # 3N + 3 = number of dimensions of the state. For N=2, 3N + 3 = 9
-        ekf = ExtendedKalmanFilter(dim_z=2, dim_x=9)
+        ekf = ExtendedKalmanFilter(dim_z=3, dim_x=3)
         pub = rospy.Publisher('landmark', SpotArray, queue_size=10)
 
         global last_time
@@ -236,7 +257,7 @@ if __name__ == "__main__":
         twist_sub = rospy.Subscriber('cmd_vel', Twist, ekf.twistCallback)
         odom_sub = rospy.Subscriber('odom', Odometry, ekf.odomCallback)
 
-        # Subscribe to lser scan topic to get measuerements
+        # Subscribe to laser scan topic to get measuerements
         laser_sub = rospy.Subscriber('scan', LaserScan, ekf.laserCallback)
 
         rospy.spin()
