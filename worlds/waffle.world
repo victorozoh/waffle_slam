@@ -28,6 +28,51 @@
 
     <!--AR tag MARKERS -->
 
+    <!-- test marker 90mm 340px X 340px-->
+    <!-- <model name="MarkerData_0">
+      <pose>1.0 0 0  0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://tags90/markerdata_0/meshes/MarkerData_0.dae</uri>
+            <scale>0.25 0.25 0.25</scale></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model> -->
+
+    <!-- test marker 90mm, 170px X 170px-->
+    <model name="MarkerData_1">
+      <pose>1.0 0 0  0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://tags170px/markerdata_1/meshes/MarkerData_1.dae</uri>
+            <scale>0.3 0.3 0.3</scale></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+
+    <!-- test marker -->
+    <!-- <model name="Marker2">
+      <pose>1.0 0 0  0 0 0</pose>
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>model://marker2/meshes/Marker2.dae</uri>
+            <scale>0.3 0.3 0.3</scale></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model> -->
+
     <!-- marker 0 -->
     <!-- <model name="MarkerData_0">
       <pose>1 -0.5 0  0 0 0</pose>
@@ -42,21 +87,6 @@
         </visual>
       </link>
     </model> -->
-
-    <!-- test marker -->
-    <model name="Marker2">
-      <pose>1.0 0 0  0 0 0</pose>
-      <static>true</static>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <mesh>
-              <uri>model://marker2/meshes/Marker2.dae</uri>
-            <scale>0.3 0.3 0.3</scale></mesh>
-          </geometry>
-        </visual>
-      </link>
-    </model>
 
     <!-- marker 1  0.3 0.3 0.3 -->
     <!-- <model name="MarkerData_1">
