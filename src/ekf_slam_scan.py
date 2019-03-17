@@ -182,7 +182,7 @@ class ExtendedKalmanFilter(object):
 
         # x_prime[:3] =  self.x[:3] + np.dot(self.B, vel)
         if self.num_landmarks > 0:
-            self.F = np.hstack((np.eye(3), np.zeros(3, 3*self.num_landmarks)))
+            self.F = np.hstack((np.eye(3), np.zeros((3, 3*self.num_landmarks)) ))
         else:
             self.F = np.eye(3)
 
