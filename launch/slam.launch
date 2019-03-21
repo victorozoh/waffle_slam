@@ -43,7 +43,7 @@
   </node>
 
   <!--RVIZ-->
-  <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/scan.rviz"/> -->
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/scan.rviz"/>
 
   <!-- EKF SLAM node -->
   <node pkg="waffle_pick_place" type="ekf_slam_scan.py" name="ekf_slam" output="screen"/>

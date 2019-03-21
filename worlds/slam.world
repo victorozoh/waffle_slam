@@ -29,12 +29,12 @@
     <!--coke can -->
     <include>
       <uri>model://coke_can</uri>
-      <pose>1.0 0 0 0 0 0</pose>
+      <pose>5.0 0 0 0 0 0</pose>
     </include>
 
     <include>
       <uri>model://coke_can</uri>
-      <pose>1.0 1.0 0 0 0 0</pose>
+      <pose>5.0 1.0 0 0 0 0</pose>
     </include>
 
 

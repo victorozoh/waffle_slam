@@ -2,7 +2,7 @@
   <!-- specify turtlebot model via environment variable -->
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
   <!-- specify parameters for start location of robot in simulation -->
-  <arg name="x_pos" default="0.0"/>
+  <arg name="x_pos" default="-4.5"/>
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
   <arg name="world" default="$(find waffle_pick_place)/worlds/waffle.world"/>

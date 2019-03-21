@@ -171,10 +171,6 @@ class ExtendedKalmanFilter(object):
         linear_vel = math.sqrt((vel_controls[0])**2 + (vel_controls[1])**2)
         vel = np.array([linear_vel, vel_controls[2]]).reshape((2,1)) # combine lineer and angular velocity into one vector
 
-        # add some process noise with mean = 0 and std = 0.1
-        noise = np.random.normal(0, 0.05, 3)
-        vel = vel + noise[:2].reshape((2,1))
-
         # x_prime[:3] =  self.x[:3] + np.dot(self.B, vel)
         if self.num_landmarks > 0:
             self.F = np.hstack((np.eye(3), np.zeros((3, 2*self.num_landmarks)) ))
