@@ -57,7 +57,7 @@
   <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/Tags.rviz"/>
 
   <!-- EKF SLAM node -->
-  <node pkg="waffle_pick_place" type="ekf_slam.py" name="ekf_slam" output="screen"/>
+  <node pkg="waffle_pick_place" type="ekf_tagslam.py" name="ekf_slam" output="screen"/>
 
 
 </launch>
