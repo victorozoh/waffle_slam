@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>waffle_pick_place</name>
+  <name>waffle_slam</name>
   <version>0.0.0</version>
-  <description>The waffle_pick_place package</description>
+  <description>The waffle_slam package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/waffle_pick_place</url> -->
+  <!-- <url type="website">http://wiki.ros.org/waffle_slam</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->

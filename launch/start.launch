@@ -54,7 +54,7 @@
   </node>
 
   <!--RVIZ-->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/EKF.rviz"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_slam/rviz/EKF.rviz"/>
 
 
 </launch>

@@ -11,7 +11,7 @@
   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)" />
 
   <!--EKF node-->
- <node pkg="waffle_pick_place" type="particle_filter.py" name="particlefilter" output="screen">
+ <node pkg="waffle_slam" type="particle_filter.py" name="particlefilter" output="screen">
  </node>
 
   <!-- Load robot model into robot_description parameter -->
@@ -40,6 +40,6 @@
   </node>
 
   <!--RVIZ-->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/EKF.rviz"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_slam/rviz/EKF.rviz"/>
 
 </launch>

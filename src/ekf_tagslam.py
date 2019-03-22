@@ -5,7 +5,7 @@ import numpy as np
 import math
 import tf
 from std_msgs.msg import Float32
-from waffle_pick_place.msg import Spot, SpotArray
+from waffle_slam.msg import Spot, SpotArray
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
 from ar_track_alvar_msgs.msg import AlvarMarkers

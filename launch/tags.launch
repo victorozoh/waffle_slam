@@ -5,7 +5,7 @@
   <arg name="x_pos" default="-4.5"/>
   <arg name="y_pos" default="0.0"/>
   <arg name="z_pos" default="0.0"/>
-  <arg name="world" default="$(find waffle_pick_place)/worlds/waffle.world"/>
+  <arg name="world" default="$(find waffle_slam)/worlds/waffle.world"/>
 
   <!-- parameters for AR tag node -->
   <arg name="marker_size" default="9.0" />
@@ -23,8 +23,8 @@
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
   <!-- load world model for gazebo -->
-  <include file="$(find waffle_pick_place)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find waffle_pick_place)/worlds/waffle.world"/>
+  <include file="$(find waffle_slam)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find waffle_slam)/worlds/waffle.world"/>
   </include>
 
   <!-- Needed for rviz -->
@@ -54,10 +54,10 @@
   </node>
 
   <!--RVIZ-->
-  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_pick_place/rviz/Tags.rviz"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d /home/panther/catkin_ws/src/waffle_slam/rviz/Tags.rviz"/>
 
   <!-- EKF SLAM node -->
-  <node pkg="waffle_pick_place" type="ekf_tagslam.py" name="ekf_slam" output="screen"/>
+  <node pkg="waffle_slam" type="ekf_tagslam.py" name="ekf_slam" output="screen"/>
 
 
 </launch>

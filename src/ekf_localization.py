@@ -164,7 +164,7 @@ class ExtendedKalmanFilter(object):
 
 if __name__ == "__main__":
     try:
-        rospy.init_node('ekfnode')
+        rospy.init_node('ekf_localization')
         # odom_frame = rospy.get_param("~output_frame",'odom')
         # base_frame = rospy.get_param("~base_footprint_frame",'base_footprint')
         # tf_pub = tf.TransformBroadcaster()
