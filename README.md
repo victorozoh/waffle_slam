@@ -7,29 +7,19 @@ SLAM Project
 
 
 ## Overview
-The goal of this project is to implement SLAM and utilize the Turtlebot3 Waffle Pi robot to navigate.
-SLAM is a fundamental aspect of autonomy in robotics. Just like we cannot have a postal system
-without zip codes or computer network without some Internet Protocol addressing, we cannot have autonomous robots without SLAM.
+The goal of this project is to implement SLAM on the Turtlebot3 Waffle Pi in Gazebo.
 The two key questions that inspired the development of SLAM are:
 - Where is the robot in the world?
 - Where are the stationary/moving items in the world?
 
-The answers to the questions above are the components of the robot's state. We wish to know this state at all times in order to accomplish tasks like Planning
-and Navigation.
-By definition, the state of a robot is the collection of all aspects of the robot and environment that impact the future. Due to uncertainty
-in the dynamics and interaction of a robot and it's environment, the state of a robot is represented with a probability density function(pdf).
-The challenge is then to model the propagation of the this pdf as the robot moves and interacts with it's environment.
-The proper representation and modeling of the dynamics of the pdf has been solved in a probabilistic framework using the Bayes Filter.
-The Kalman, Extended Kalman Filter and Particle Filters are all unique implementations of the Bayes Filter.
-
-There are a few sub tasks for the robot to perform. They include:
-
-- Perform SLAM(Simultaneous Localization and Mapping) or use a known map and implement localization
-- Navigation to location where objects are placed
-- Obstacle avoidance
+The SLAM problem has been solved in a probabilistic framework using the Bayes Filter.
+I focus on implementing the Extended Kalman Filter(EKF) to perform the following:
+- Localisation only
+- Localization and Mapping with unknown correspondences. I implement the Maximum Likelihood estimator
+to determine correspondences.
 
 ## Basic goals
-- Implement SLAM. Compare Particle Filter with EKF(Extended Kalman Filter)
+- Implement SLAM using the EKF(Extended Kalman Filter)
 
 ## Stretch goals
 - Implement exploration algorithm to be used for mapping.
@@ -38,21 +28,11 @@ locations will be supplied to the robot.
 - Incorporate stationary and moving obstacles
 - Get the robot to utilize computer vision to find where items are located and where to drop them off. This may involve having to implement a solution to Loop Closure Detection which is about the process of finding a previously visited place.
 
-
-## Timeline
-- 1/30/2019:  Complete set up of Waffle Pi robot
-- 2/6/2019:   Set up mock environment for robot and specify a map in ROS
-- 2/20/2019: Implement Exploration algorithm and Particle filter or EKF to make robot more autonomous
-- 2/27/2019:  More SLAM work
-- 3/6/2019: Implement obstacle avoidance for static objects
-
-
 ## Future Work
-Loop Closure Detection
+Particle Filter implementation of Localization and Mapping
 
 ## Packages
-- ar_track_alvar
-
+- PlotJuggler
 
 ## Notes
 - SLAM is a key step for proper Navigation and Planning in mobile autonomous systems
