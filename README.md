@@ -21,7 +21,7 @@ to determine correspondences.
 This implementation of the EKF SLAM is still not very robust and is currently being tested and updated.
 
 ## Introduction to the EKF Algorithm
-More technical details on the working of the EKF implementation in the waffle_slam package can be found [here]()
+More technical details on the working of the EKF implementation in the waffle_slam package can be found [here](https://github.com/victorozoh/waffle_slam/blob/master/Introduction_to_EKF.pdf)
 
 ## Setup
 - Ubuntu 16.04
