@@ -18,15 +18,9 @@ I focus on implementing the Extended Kalman Filter(EKF) to perform the following
 - Localization and Mapping with unknown correspondences. I implement the Maximum Likelihood estimator
 to determine correspondences.
 
-## Basic goals
-- Implement SLAM using the EKF(Extended Kalman Filter)
+## Installation
 
-## Stretch goals
-- Implement exploration algorithm to be used for mapping.
-- Use one item/block as object to be identified and picked up. The pick up and drop off
-locations will be supplied to the robot.
-- Incorporate stationary and moving obstacles
-- Get the robot to utilize computer vision to find where items are located and where to drop them off. This may involve having to implement a solution to Loop Closure Detection which is about the process of finding a previously visited place.
+## Instructions
 
 ## Future Work
 Particle Filter implementation of Localization and Mapping
@@ -49,7 +43,7 @@ Particle Filter implementation of Localization and Mapping
 - Kalman Filter, Extended Kalmn Filter and Unscented Kalman filter: Family of gaussian filters
 - Histogram filter or Grid Localisation algorithm
 - Markov Localisation: Utilizes discrete probability distribution as representation of state space and updates the probabilities with each iteration
-- particle filter or Monte Carlo localisation
+- Particle filter or Monte Carlo localisation
 ### Kalman Filter
 - Assumes linear motion and measurement models
 - Assumes a unimodal gaussian
@@ -57,9 +51,3 @@ Particle Filter implementation of Localization and Mapping
 ### EKF
 - Does not asssume linear measurement or motion models
 - Linearization of non-linear function is necessary
-
-### Overall Structure
-- Send control commands via keyboard/joystick. Or develop exploration algorithm
-- Subscribe to IMU and Odometry data
-- Publish filtered pose on a new topic
-- view trajectory on Rviz
