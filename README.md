@@ -1,7 +1,7 @@
 SLAM Project
 =============================
 
-### Implementing SLAM(Simultaneous Localization and Mapping) on a Turtlebot3 Waffle Pi 
+### Implementing SLAM(Simultaneous Localization and Mapping) on a Turtlebot3 Waffle Pi
 
 #### *Victor Ozoh -- MS in Robotics Winter Quarter Project - Northwestern University*
 
@@ -19,6 +19,10 @@ I focus on implementing the Extended Kalman Filter(EKF) to perform the following
 to determine correspondences.
 
 This implementation of the EKF SLAM is still not very robust and is currently being tested and updated.
+
+## Introduction to the EKF Algorithm
+More technical details on the working of the EKF implementation in the waffle_slam package can be found [here]()
+
 ## Setup
 - Ubuntu 16.04
 - ROS Kinetic
@@ -39,9 +43,6 @@ After installing the ROS dependent packages, you can simply clone this repositor
 
 ## Future Work
 I am currently working on improving the EKF SLAM so that it is more robust and can be used on a robot in the real world. In addition, I will implement the popular Particle Filter of Localization and Mapping.
-More technical details on the working of the EKF implementation in the waffle_slam package can be found [here]()
-## Packages
-- PlotJuggler
 
 ## Notes
 - SLAM is a key step for proper Navigation and Planning in mobile autonomous systems
